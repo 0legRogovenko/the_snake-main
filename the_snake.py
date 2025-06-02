@@ -29,9 +29,6 @@ SNAKE_COLOR = (0, 255, 0)
 # Скорость движения змейки:
 SPEED = 20
 
-# Инициализация PyGame:
-pygame.init()
-
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 
@@ -113,9 +110,7 @@ class Snake(GameObject):
             self.next_direction = None
 
     def move(self):
-        """
-        Двигает змейку в текущем направлении, обновляя ее позицию.
-        """
+        """Двигает змейку в текущем направлении, обновляя ее позицию."""
         cur_x, cur_y = self.get_head_position()
         dir_x, dir_y = self.direction
 
@@ -136,9 +131,7 @@ class Snake(GameObject):
 
 
 def handle_keys(game_object):
-    """
-    Обрабатывает нажатия клавиш для управления игровым объектом (змейкой).
-    """
+    """Обрабатывает нажатия клавиш для управления змейкой."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
