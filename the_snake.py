@@ -1,4 +1,5 @@
 from random import randint
+
 import pygame as pg
 
 # Константы размеров окна и сетки
@@ -74,7 +75,7 @@ class Apple(GameObject):
         while True:
             self.position = (
                 randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-                randint(0, GRID_HEIGHT - 1) * GRID_SIZE
+                randint(0, GRID_HEIGHT - 1) * GRID_SIZE,
             )
             if self.position not in occupied_positions:
                 break
@@ -104,18 +105,18 @@ class Snake(GameObject):
 
     def update_direction(self, new_direction):
         """Обновляет направление змейки, если оно допустимо."""
-        if (
-            new_direction
-            and new_direction != (-self.direction[0], -self.direction[1])
-        ):
+        opposite_direction = (-self.direction[0], -self.direction[1])
+        if new_direction and new_direction != opposite_direction:
             self.direction = new_direction
 
     def move(self):
         """Перемещает змейку в текущем направлении."""
         head_x, head_y = self.get_head_position()
         dir_x, dir_y = self.direction
-        new_head = ((head_x + dir_x * GRID_SIZE) % SCREEN_WIDTH,
-                    (head_y + dir_y * GRID_SIZE) % SCREEN_HEIGHT)
+        new_head = (
+            (head_x + dir_x * GRID_SIZE) % SCREEN_WIDTH,
+            (head_y + dir_y * GRID_SIZE) % SCREEN_HEIGHT,
+        )
         self.positions.insert(0, new_head)
         self.last = self.positions.pop()
 
@@ -129,15 +130,16 @@ class Snake(GameObject):
 def handle_keys(snake):
     """Обрабатывает нажатия клавиш для управления змейкой."""
     for event in pg.event.get():
-        if (
-            event.type == pg.QUIT
-            or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE)
+        if event.type == pg.QUIT or (
+            event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE
         ):
             pg.quit()
             raise SystemExit
         if event.type == pg.KEYDOWN:
             new_direction = DIRECTION_MAP.get(
-                (snake.direction, event.key), snake.direction)
+                (snake.direction, event.key),
+                snake.direction,
+            )
             snake.update_direction(new_direction)
 
 
