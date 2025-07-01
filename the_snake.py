@@ -25,12 +25,13 @@ SPEED = 20
 # Настройка PyGame
 pg.init()
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
-pg.display.set_caption(f'Для выхода нажмите Cmd + Q')
+pg.display.set_caption('Для выхода нажмите Cmd + Q')
 clock = pg.time.Clock()
 
 
 class GameObject:
     """Базовый класс для игровых объектов."""
+
     def __init__(self, position=(0, 0), body_color=(0, 0, 0)):
         self.position = position
         self.body_color = body_color
@@ -42,6 +43,7 @@ class GameObject:
 
 class Apple(GameObject):
     """Яблоко на игровом поле."""
+
     def __init__(self):
         super().__init__((0, 0), APPLE_COLOR)
         self.randomize_position()
@@ -62,6 +64,7 @@ class Apple(GameObject):
 
 class Snake(GameObject):
     """Змейка с логикой движения и роста."""
+
     def __init__(self):
         super().__init__((SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), SNAKE_COLOR)
         self.length = 1
