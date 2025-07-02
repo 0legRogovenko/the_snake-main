@@ -78,8 +78,7 @@ class Apple(GameObject):
 
     def randomize_position(self, occupied_positions):
         """Устанавливает случайную позицию яблока, избегая занятых ячеек."""
-        free_cells = list(ALL_CELLS - set(occupied_positions))
-        self.position = choice(free_cells)
+        self.position = choice(list(ALL_CELLS - set(occupied_positions)))
 
     def draw(self):
         """Рисует яблоко на экране."""
@@ -90,7 +89,7 @@ class Snake(GameObject):
     """Класс для змейки, движущейся по игровому полю."""
 
     def __init__(self, body_color=SNAKE_COLOR):
-        super().__init__(position=CENTER_POSITION, body_color=body_color)
+        super().__init__(body_color=body_color)
         self.reset()
 
     def reset(self):
@@ -98,19 +97,12 @@ class Snake(GameObject):
         self.positions = [CENTER_POSITION]
         self.direction = RIGHT
         self.length = 1
+        self._ate_apple = False
+        self._last_tail = None
 
     def get_head_position(self):
         """Возвращает позицию головы змейки."""
         return self.positions[0]
-
-    def get_next_head_position(self):
-        """Вычисляет следующую позицию головы змейки с учётом направления."""
-        x, y = self.get_head_position()
-        dx, dy = self.direction
-        return (
-            (x + dx * GRID_SIZE) % SCREEN_WIDTH,
-            (y + dy * GRID_SIZE) % SCREEN_HEIGHT
-        )
 
     def update_direction(self, new_direction):
         """Обновляет направление движения змейки, если оно допустимо."""
@@ -118,7 +110,7 @@ class Snake(GameObject):
                 and new_direction != OPPOSITE_DIRECTIONS[self.direction]):
             self.direction = new_direction
 
-    def move(self, ate_apple):
+    def move(self):
         """
         Двигает змейку на одну ячейку вперёд.
         Если съедено яблоко, хвост не удаляется.
@@ -130,13 +122,17 @@ class Snake(GameObject):
             (y + dy * GRID_SIZE) % SCREEN_HEIGHT
         )
         self.positions.insert(0, new_head)
-        if not ate_apple:
-            self.positions.pop()
+        if not self._ate_apple:
+            self._last_tail = self.positions.pop()
+        else:
+            self._last_tail = None
+        self._ate_apple = False
 
     def draw(self):
-        """Рисует всю змейку на экране."""
-        for pos in self.positions:
-            self.draw_cell(pos)
+        """Рисует только голову и стирает хвост, если нужно."""
+        self.draw_cell(self.positions[0])
+        if self._last_tail:
+            self.draw_cell(self._last_tail, color=BOARD_BACKGROUND_COLOR)
 
 
 def handle_keys(snake):
@@ -168,15 +164,23 @@ def main():
 
     while True:
         clock.tick(SPEED)
-        screen.fill(BOARD_BACKGROUND_COLOR)
         handle_keys(snake)
-        ate_apple = snake.get_next_head_position() == apple.position
+        head = snake.get_head_position()
+        x, y = head
+        dx, dy = snake.direction
+        next_head = (
+            (x + dx * GRID_SIZE) % SCREEN_WIDTH,
+            (y + dy * GRID_SIZE) % SCREEN_HEIGHT
+        )
+        ate_apple = next_head == apple.position
+        snake._ate_apple = ate_apple
         # Проверка самоукуса
-        if snake.get_next_head_position() in snake.positions[1:]:
+        if next_head in snake.positions[1:]:
+            screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
             apple.randomize_position(snake.positions)
         else:
-            snake.move(ate_apple)
+            snake.move()
             if ate_apple:
                 apple.randomize_position(snake.positions)
         apple.draw()
