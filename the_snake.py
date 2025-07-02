@@ -165,22 +165,15 @@ def main():
     while True:
         clock.tick(SPEED)
         handle_keys(snake)
-        # Вычисляем следующую позицию головы
-        x, y = snake.get_head_position()
-        dx, dy = snake.direction
-        next_head = (
-            (x + dx * GRID_SIZE) % SCREEN_WIDTH,
-            (y + dy * GRID_SIZE) % SCREEN_HEIGHT
-        )
-        ate_apple = next_head == apple.position
-        snake._ate_apple = ate_apple
-        if next_head in snake.positions[1:]:
+        # Двигаем змейку
+        snake.move()
+        head = snake.get_head_position()
+        # Проверка самоукуса
+        if head in snake.positions[1:]:
             screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
             apple.randomize_position(snake.positions)
-        else:
-            snake.move()
-        if ate_apple:
+        elif head == apple.position:
             apple.randomize_position(snake.positions)
         apple.draw()
         snake.draw()
